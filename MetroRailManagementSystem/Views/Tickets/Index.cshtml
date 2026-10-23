@@ -1,0 +1,91 @@
+﻿@model List<MetroRailManagementSystem.Models.Ticket>
+
+@{
+    ViewData["Title"] = "Tickets";
+}
+
+<h2>Tickets</h2>
+
+<a class="btn btn-success mb-3" asp-action="Create">+ Book Ticket</a>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Passenger</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Train</th>
+            <th>Qty</th>
+            <th>Total Fare</th>
+            <th>Created</th>
+            <th>Status</th>
+            <th style="width:220px;">Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @{
+            var stationMap = (Dictionary<int, string>)ViewBag.StationMap;
+            var trainMap = (Dictionary<int, string>)ViewBag.TrainMap;
+        }
+
+        @foreach (var t in Model)
+        {
+            <tr>
+                <td>@t.Id</td>
+                <td>@t.PassengerName</td>
+                <td>@(stationMap.ContainsKey(t.FromStationId) ? stationMap[t.FromStationId] : "N/A")</td>
+                <td>@(stationMap.ContainsKey(t.ToStationId) ? stationMap[t.ToStationId] : "N/A")</td>
+                <td>@(trainMap.ContainsKey(t.TrainId) ? trainMap[t.TrainId] : "N/A")</td>
+                <td>@t.Quantity</td>
+                <td>@t.TotalFare</td>
+                <td>@t.CreatedAt.ToLocalTime().ToString("dd-MMM-yyyy hh:mm tt")</td>
+
+                <td>
+                    @if (t.IsCancelled)
+                    {
+                        <span class="badge bg-secondary">Cancelled</span>
+                        @if (t.CancelledAt != null)
+                        {
+                            <div class="small text-muted">
+                                @t.CancelledAt.Value.ToLocalTime().ToString("dd-MMM-yyyy hh:mm tt")
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                </td>
+
+                <td>
+                    <!-- ✅ PDF (always available) -->
+                    <a class="btn btn-sm btn-outline-primary"
+                       asp-action="Pdf"
+                       asp-route-id="@t.Id"
+                       target="_blank">
+                        PDF
+                    </a>
+
+                    @if (!t.IsCancelled)
+                    {
+                        <form asp-action="Cancel" method="post" class="d-inline ms-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@t.Id" />
+                            <button type="submit"
+                                    class="btn btn-sm btn-warning"
+                                    onclick="return confirm('Cancel this ticket? Seats will be restored.');">
+                                Cancel
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="text-muted ms-2">—</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

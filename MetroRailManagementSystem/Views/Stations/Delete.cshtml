@@ -1,0 +1,23 @@
+﻿@model MetroRailManagementSystem.Models.Station
+
+@{
+    ViewData["Title"] = "Delete Station";
+}
+
+<h2>Delete Station</h2>
+
+<div class="alert alert-warning">
+    Are you sure you want to delete this station?
+</div>
+
+<ul class="list-group mb-3">
+    <li class="list-group-item"><strong>Name:</strong> @Model.Name</li>
+    <li class="list-group-item"><strong>Code:</strong> @Model.Code</li>
+    <li class="list-group-item"><strong>Status:</strong> @(Model.IsActive ? "Active" : "Inactive")</li>
+</ul>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

@@ -1,0 +1,142 @@
+﻿@model MetroRailManagementSystem.ViewModels.TicketCreateVM
+@using MetroRailManagementSystem.Models
+
+@{
+    ViewData["Title"] = "Book Ticket";
+    var stations = ViewBag.StationsRaw as List<Station> ?? new List<Station>();
+}
+
+<h2>Book Ticket</h2>
+
+<div class="alert alert-info">
+    Fare rule: <strong>5 TK per KM</strong>. Amount = Distance × 5 × Quantity
+</div>
+
+<!-- ✅ This will show the real reason when booking fails -->
+<div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+<form asp-action="Create" method="post" class="mt-3">
+    <div class="mb-3">
+        <label asp-for="PassengerName" class="form-label"></label>
+        <input asp-for="PassengerName" class="form-control" />
+        <span asp-validation-for="PassengerName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FromStationId" class="form-label">From</label>
+        <select asp-for="FromStationId" class="form-select" id="fromStation">
+            <option value="">-- Select --</option>
+            @foreach (var s in stations)
+            {
+                <option value="@s.Id" data-km="@s.DistanceKm">@s.Name</option>
+            }
+        </select>
+        <span asp-validation-for="FromStationId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ToStationId" class="form-label">To</label>
+        <select asp-for="ToStationId" class="form-select" id="toStation">
+            <option value="">-- Select --</option>
+            @foreach (var s in stations)
+            {
+                <option value="@s.Id" data-km="@s.DistanceKm">@s.Name</option>
+            }
+        </select>
+        <span asp-validation-for="ToStationId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="TrainId" class="form-label">Train</label>
+        <select asp-for="TrainId" class="form-select" asp-items="ViewBag.Trains">
+            <option value="">-- Select --</option>
+        </select>
+        <span asp-validation-for="TrainId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Quantity" class="form-label"></label>
+        <input asp-for="Quantity" type="number" min="1" class="form-control" id="qty" />
+        <span asp-validation-for="Quantity" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PaymentMethod" class="form-label">Payment Method</label>
+        <select asp-for="PaymentMethod" class="form-select" id="paymentMethod">
+            <option value="bKash">bKash</option>
+            <option value="Rocket">Rocket</option>
+            <option value="Nagad">Nagad</option>
+            <option value="Bank">Bank</option>
+        </select>
+        <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PaymentNumber" class="form-label">Payment Number / Account</label>
+        <input asp-for="PaymentNumber" class="form-control" placeholder="e.g. 01XXXXXXXXX" />
+        <span asp-validation-for="PaymentNumber" class="text-danger"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Calculated Distance (KM)</label>
+            <input type="text" class="form-control" id="distanceKm" readonly />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Total Amount (TK)</label>
+            <input type="text" class="form-control" id="totalAmount" readonly />
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Book & Pay</button>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const farePerKm = 5;
+
+            const fromEl = document.getElementById("fromStation");
+            const toEl = document.getElementById("toStation");
+            const qtyEl = document.getElementById("qty");
+            const distEl = document.getElementById("distanceKm");
+            const amountEl = document.getElementById("totalAmount");
+
+            function selectedKm(selectEl) {
+                const opt = selectEl.options[selectEl.selectedIndex];
+                if (!opt) return null;
+                const km = opt.getAttribute("data-km");
+                return km === null ? null : parseInt(km, 10);
+            }
+
+            function update() {
+                const fromKm = selectedKm(fromEl);
+                const toKm = selectedKm(toEl);
+                const qty = parseInt(qtyEl.value || "1", 10);
+
+                if (fromKm === null || toKm === null || isNaN(qty) || qty <= 0) {
+                    distEl.value = "";
+                    amountEl.value = "";
+                    return;
+                }
+
+                const distance = Math.abs(toKm - fromKm);
+                distEl.value = distance;
+
+                const total = distance * farePerKm * qty;
+                amountEl.value = total;
+            }
+
+            ["change", "keyup", "input"].forEach(evt => {
+                fromEl.addEventListener(evt, update);
+                toEl.addEventListener(evt, update);
+                qtyEl.addEventListener(evt, update);
+            });
+
+            update();
+        });
+    </script>
+}

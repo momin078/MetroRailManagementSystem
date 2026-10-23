@@ -1,0 +1,106 @@
+﻿@model MetroRailManagementSystem.ViewModels.DashboardVM
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <h2>Metro Rail Dashboard (Admin)</h2>
+
+    <div class="row g-3 mt-2">
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted">Total Stations</div>
+                    <h3 class="mb-0">@Model.TotalStations</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted">Total Trains</div>
+                    <h3 class="mb-0">@Model.TotalTrains</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted">Total Tickets</div>
+                    <h3 class="mb-0">@Model.TotalTickets</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted">Available Seats</div>
+                    <h3 class="mb-0">@Model.AvailableSeats</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted">Total Users</div>
+                    <h3 class="mb-0">@Model.TotalUsers</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a class="btn btn-primary me-2" href="/Stations">Manage Stations</a>
+        <a class="btn btn-primary me-2" href="/Trains">Manage Trains</a>
+        <a class="btn btn-primary" href="/Tickets">View Tickets</a>
+    </div>
+}
+else
+{
+    <h2>Welcome to Dhaka Metro Rail</h2>
+    <p class="text-muted mb-4">Smart travel for a better city.</p>
+
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <div class="p-4 bg-white rounded shadow-sm">
+                <h4 class="mb-3">Have a Safe Journey 🚇</h4>
+
+                <ul class="mb-0">
+                    <li>Respect time — trains run on schedule.</li>
+                    <li>Travel smart, reach on time.</li>
+                    <li>Your destination is closer than you think.</li>
+                    <li>Discipline makes public transport better.</li>
+                </ul>
+
+                <div class="mt-4">
+                    <a class="btn btn-success" href="/Tickets/Create">Book Ticket</a>
+                    <a class="btn btn-outline-primary ms-2" href="/Stations">View Stations</a>
+                    <a class="btn btn-outline-primary ms-2" href="/Trains">View Trains</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="p-3 bg-white rounded shadow-sm text-center">
+                <h5 class="mb-3">Metro Rail Map</h5>
+
+                <img src="~/img/metro-map.jpg"
+                     alt="Metro Map"
+                     class="img-fluid rounded"
+                     style="max-height:350px; object-fit:contain;" />
+
+                <div class="small text-muted mt-2">
+                    Dhaka Metro Rail Route Map
+                </div>
+            </div>
+        </div>
+    </div>
+}

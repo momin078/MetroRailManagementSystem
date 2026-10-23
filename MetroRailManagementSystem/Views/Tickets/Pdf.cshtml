@@ -1,0 +1,146 @@
+﻿@model MetroRailManagementSystem.Models.Ticket
+
+@{
+    Layout = null; // clean printable page
+    var fromName = ViewBag.FromStation as string ?? "N/A";
+    var toName = ViewBag.ToStation as string ?? "N/A";
+    var trainName = ViewBag.TrainName as string ?? "N/A";
+
+    // Mask payment number (show only last 3 digits)
+    string Mask(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return "N/A";
+        s = s.Trim();
+        if (s.Length <= 3) return "***";
+        return new string('*', s.Length - 3) + s[^3..];
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Metro Ticket - #@Model.Id</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <style>
+        body { background: #f4f6f8; padding: 30px; }
+        .ticket-wrap { max-width: 560px; margin: 0 auto; }
+        .ticket-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 22px;
+            border: 2px dashed #0d6efd;
+            box-shadow: 0 12px 30px rgba(0,0,0,.08);
+        }
+        .top {
+            display:flex; justify-content:space-between; align-items:flex-start;
+            gap: 12px; margin-bottom: 14px;
+        }
+        .brand { font-weight: 800; font-size: 18px; line-height: 1.1; }
+        .sub { color:#6c757d; font-size: 13px; }
+        .badge-metro {
+            background:#0d6efd; color:#fff;
+            padding: 7px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .route {
+            background: #f1f7ff;
+            border: 1px solid #d9ecff;
+            padding: 12px;
+            border-radius: 12px;
+            margin: 12px 0;
+        }
+        .route .big { font-size: 16px; font-weight: 800; }
+        .route .small { color:#6c757d; font-size: 13px; }
+
+        .kv { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee; }
+        .kv:last-child { border-bottom: none; }
+        .k { color:#6c757d; }
+        .v { font-weight: 700; text-align:right; }
+
+        .actions { margin-top: 14px; display:flex; gap:10px; justify-content:center; }
+
+        /* Razor fix: use @@media so Razor doesn't treat it as C# */
+        @@media print {
+            body { background: #fff; padding: 0; }
+            .actions { display: none !important; }
+            .ticket-card { box-shadow:none; border: 2px solid #000; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ticket-wrap">
+        <div class="ticket-card">
+            <div class="top">
+                <div>
+                    <div class="brand">Dhaka Metro Rail</div>
+                    <div class="sub">Metro Ticket / Travel Card</div>
+                    <div class="sub">Ticket ID: <strong>#@Model.Id</strong></div>
+                </div>
+                <div class="badge-metro">@((Model.IsCancelled) ? "CANCELLED" : "PAID")</div>
+            </div>
+
+            <div class="route">
+                <div class="big">@fromName → @toName</div>
+                <div class="small">Train: @trainName</div>
+            </div>
+
+            <div class="kv">
+                <div class="k">Passenger</div>
+                <div class="v">@Model.PassengerName</div>
+            </div>
+
+            <div class="kv">
+                <div class="k">Distance</div>
+                <div class="v">@Model.DistanceKm KM</div>
+            </div>
+
+            <div class="kv">
+                <div class="k">Fare Rule</div>
+                <div class="v">@Model.FarePerKm TK / KM</div>
+            </div>
+
+            <div class="kv">
+                <div class="k">Quantity</div>
+                <div class="v">@Model.Quantity</div>
+            </div>
+
+            <div class="kv">
+                <div class="k">Total Amount</div>
+                <div class="v">@Model.TotalFare TK</div>
+            </div>
+
+            <div class="kv">
+                <div class="k">Payment Method</div>
+                <div class="v">@Model.PaymentMethod</div>
+            </div>
+
+            <div class="kv">
+                <div class="k">Payment Number</div>
+                <div class="v">@Mask(Model.PaymentNumber)</div>
+            </div>
+
+            <div class="kv">
+                <div class="k">Status</div>
+                <div class="v">@(Model.IsCancelled ? "Cancelled" : "Active")</div>
+            </div>
+
+            <div class="sub mt-3">
+                Issued: @Model.CreatedAt.ToLocalTime().ToString("dd-MMM-yyyy hh:mm tt")
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="window.print()">Print / Save as PDF</button>
+            <a class="btn btn-secondary" href="/Tickets">Back</a>
+        </div>
+    </div>
+</body>
+</html>
